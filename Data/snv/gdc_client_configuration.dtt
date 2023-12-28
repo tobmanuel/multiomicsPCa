@@ -1,0 +1,3 @@
+[download]
+retry_amount = 6
+dir =GDCdata/TCGA-PRAD/Simple_Nucleotide_Variation/Raw_Simple_Somatic_Mutation

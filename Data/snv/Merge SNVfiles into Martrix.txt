@@ -1,0 +1,26 @@
+Copy all zip files to same folder
+cp **/*.gz .
+
+unzip all zip  in the folder
+gunzip *.gz
+
+index files
+for i in *.vcf.gz;  do  echo $i; bcftools index -c $i; done
+
+create subsets
+ls *.vcf.gz | split -l 503 - subset_vcfs
+
+merge each subset
+for i in subset_vcfs*;  do  echo $i; bcftools merge -0 --force-samples -l $i -Oz -o merge.$i.vcf.gz ; tabix -p vcf merge.$i.vcf.gz; done
+
+
+change id
+awk 'BEGIN { OFS="\t" } { $3 =$1":"$2; print }' merge.subset_vcfsaa.vcf | tee tcga.vcf
+
+
+remover Header
+ awk -F'\t' -v OFS='\t' '{ if ($3 ~ /^#CHROM:POS$/) $3 = "ID"; print }' tcga.vcf > tcga_mod.vcf
+
+covert to bed
+plink1.9 -vcf tcga_mod.vcf --make-bed out snv
+
